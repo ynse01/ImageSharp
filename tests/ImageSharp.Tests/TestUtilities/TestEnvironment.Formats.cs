@@ -54,7 +54,6 @@ namespace SixLabors.ImageSharp.Tests
         {
             var cfg = new Configuration(
                 new JpegConfigurationModule(),
-                new GifConfigurationModule(),
                 new TgaConfigurationModule());
 
             // Magick codecs should work on all platforms
@@ -72,6 +71,12 @@ namespace SixLabors.ImageSharp.Tests
                 IsWindows ? (IImageDecoder)SystemDrawingReferenceDecoder.Instance : MagickReferenceDecoder.Instance,
                 bmpEncoder,
                 new BmpImageFormatDetector());
+
+            cfg.ConfigureCodecs(
+                GifFormat.Instance,
+                IsWindows ? (IImageDecoder)SystemDrawingReferenceDecoder.Instance : MagickReferenceDecoder.Instance,
+                new GifEncoder(),
+                new GifImageFormatDetector());
 
             return cfg;
         }
