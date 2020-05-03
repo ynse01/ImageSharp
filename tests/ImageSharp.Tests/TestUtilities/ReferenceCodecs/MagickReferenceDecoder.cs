@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -52,27 +53,36 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
         public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using var magickImage = new MagickImage(stream);
-            var result = new Image<TPixel>(configuration, magickImage.Width, magickImage.Height);
-            MemoryGroup<TPixel> resultPixels = result.GetRootFramePixelBuffer().FastMemoryGroup;
-
-            using (IPixelCollection pixels = magickImage.GetPixelsUnsafe())
+            using var imageCollection = new MagickImageCollection(stream);
+            var result = new Image<TPixel>(configuration, imageCollection[0].Width, imageCollection[0].Height);
+            for (int i = 1; i < imageCollection.Count; i++)
             {
-                if (magickImage.Depth == 8)
-                {
-                    byte[] data = pixels.ToByteArray(PixelMapping.RGBA);
+                result.Frames.CreateFrame();
+            }
 
-                    FromRgba32Bytes(configuration, data, resultPixels);
-                }
-                else if (magickImage.Depth == 16)
+            imageCollection.Coalesce();
+            for (int i = 0; i < imageCollection.Count; i++)
+            {
+                IMagickImage magickImage = imageCollection[i];
+                MemoryGroup<TPixel> resultPixels = result.Frames[i].PixelBuffer.FastMemoryGroup;
+                using (IPixelCollection pixels = magickImage.GetPixelsUnsafe())
                 {
-                    ushort[] data = pixels.ToShortArray(PixelMapping.RGBA);
-                    Span<byte> bytes = MemoryMarshal.Cast<ushort, byte>(data.AsSpan());
-                    FromRgba64Bytes(configuration, bytes, resultPixels);
-                }
-                else
-                {
-                    throw new InvalidOperationException();
+                    if (magickImage.Depth == 8)
+                    {
+                        byte[] data = pixels.ToByteArray(PixelMapping.RGBA);
+
+                        FromRgba32Bytes(configuration, data, resultPixels);
+                    }
+                    else if (magickImage.Depth == 16)
+                    {
+                        ushort[] data = pixels.ToShortArray(PixelMapping.RGBA);
+                        Span<byte> bytes = MemoryMarshal.Cast<ushort, byte>(data.AsSpan());
+                        FromRgba64Bytes(configuration, bytes, resultPixels);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
             }
 

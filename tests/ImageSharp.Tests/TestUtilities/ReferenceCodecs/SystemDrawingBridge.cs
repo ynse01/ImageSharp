@@ -26,52 +26,8 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
         internal static unsafe Image<TPixel> From32bppArgbSystemDrawingBitmap<TPixel>(Bitmap bmp)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            int w = bmp.Width;
-            int h = bmp.Height;
-
-            var fullRect = new System.Drawing.Rectangle(0, 0, w, h);
-
-            if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
-            {
-                throw new ArgumentException(
-                    $"{nameof(From32bppArgbSystemDrawingBitmap)} : pixel format should be {PixelFormat.Format32bppArgb}!",
-                    nameof(bmp));
-            }
-
-            BitmapData data = bmp.LockBits(fullRect, ImageLockMode.ReadWrite, bmp.PixelFormat);
-            var image = new Image<TPixel>(w, h);
-            try
-            {
-                byte* sourcePtrBase = (byte*)data.Scan0;
-
-                long sourceRowByteCount = data.Stride;
-                long destRowByteCount = w * sizeof(Bgra32);
-
-                Configuration configuration = image.GetConfiguration();
-
-                using (IMemoryOwner<Bgra32> workBuffer = Configuration.Default.MemoryAllocator.Allocate<Bgra32>(w))
-                {
-                    fixed (Bgra32* destPtr = &workBuffer.GetReference())
-                    {
-                        for (int y = 0; y < h; y++)
-                        {
-                            Span<TPixel> row = image.Frames.RootFrame.GetPixelRowSpan(y);
-
-                            byte* sourcePtr = sourcePtrBase + (data.Stride * y);
-
-                            Buffer.MemoryCopy(sourcePtr, destPtr, destRowByteCount, sourceRowByteCount);
-                            PixelOperations<TPixel>.Instance.FromBgra32(
-                                configuration,
-                                workBuffer.GetSpan().Slice(0, w),
-                                row);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                bmp.UnlockBits(data);
-            }
+            var image = new Image<TPixel>(bmp.Width, bmp.Height);
+            CopyDataFrom32BppDrawingBitmap(bmp, image);
 
             return image;
         }
@@ -85,17 +41,17 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
         internal static unsafe Image<TPixel> From24bppRgbSystemDrawingBitmap<TPixel>(Bitmap bmp)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            int w = bmp.Width;
-            int h = bmp.Height;
-
-            var fullRect = new System.Drawing.Rectangle(0, 0, w, h);
-
             if (bmp.PixelFormat != PixelFormat.Format24bppRgb)
             {
                 throw new ArgumentException(
                     $"{nameof(From24bppRgbSystemDrawingBitmap)}: pixel format should be {PixelFormat.Format24bppRgb}!",
                     nameof(bmp));
             }
+
+            int w = bmp.Width;
+            int h = bmp.Height;
+
+            var fullRect = new System.Drawing.Rectangle(0, 0, w, h);
 
             BitmapData data = bmp.LockBits(fullRect, ImageLockMode.ReadWrite, bmp.PixelFormat);
             var image = new Image<TPixel>(w, h);
@@ -132,6 +88,82 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
             return image;
         }
 
+        /// <summary>
+        /// Adds a new frame to the image and copies the data from the given System.Drawing bitmap to it.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel format.</typeparam>
+        /// <param name="bmp">The bitmap to copy data from.</param>
+        /// <param name="image">The destination image.</param>
+        public static void AddFrame<TPixel>(Bitmap bmp, Image<TPixel> image)
+            where TPixel : unmanaged, IPixel<TPixel>
+        {
+            image.Frames.CreateFrame();
+            CopyDataFrom32BppDrawingBitmap(bmp, image, image.Frames.Count - 1);
+        }
+
+        /// <summary>
+        /// Copies data from a System.Drawing Bitmap to a ImageSharp image.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel format.</typeparam>
+        /// <param name="bmp">The bitmap to copy from.</param>
+        /// <param name="image">The destination image.</param>
+        /// <param name="frameIndex">The frame index. Defaults to zero</param>
+        private static unsafe void CopyDataFrom32BppDrawingBitmap<TPixel>(Bitmap bmp, Image<TPixel> image, int frameIndex = 0)
+            where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
+            {
+                throw new ArgumentException(
+                    $"{nameof(From32bppArgbSystemDrawingBitmap)} : pixel format should be {PixelFormat.Format32bppArgb}!",
+                    nameof(bmp));
+            }
+
+            int w = bmp.Width;
+            int h = bmp.Height;
+
+            var fullRect = new System.Drawing.Rectangle(0, 0, w, h);
+
+            BitmapData data = bmp.LockBits(fullRect, ImageLockMode.ReadWrite, bmp.PixelFormat);
+            try
+            {
+                byte* sourcePtrBase = (byte*)data.Scan0;
+
+                long sourceRowByteCount = data.Stride;
+                long destRowByteCount = w * sizeof(Bgra32);
+
+                Configuration configuration = image.GetConfiguration();
+
+                using (IMemoryOwner<Bgra32> workBuffer = Configuration.Default.MemoryAllocator.Allocate<Bgra32>(w))
+                {
+                    fixed (Bgra32* destPtr = &workBuffer.GetReference())
+                    {
+                        for (int y = 0; y < h; y++)
+                        {
+                            Span<TPixel> row = image.Frames[frameIndex].GetPixelRowSpan(y);
+
+                            byte* sourcePtr = sourcePtrBase + (data.Stride * y);
+
+                            Buffer.MemoryCopy(sourcePtr, destPtr, destRowByteCount, sourceRowByteCount);
+                            PixelOperations<TPixel>.Instance.FromBgra32(
+                                configuration,
+                                workBuffer.GetSpan().Slice(0, w),
+                                row);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                bmp.UnlockBits(data);
+            }
+        }
+
+        /// <summary>
+        /// Converts a ImageSharp image to a System.Drawing Bitmap.
+        /// </summary>
+        /// <typeparam name="TPixel">The pixel format.</typeparam>
+        /// <param name="image">The image to convert.</param>
+        /// <returns>A System.Drawing Bitmap.</returns>
         internal static unsafe Bitmap To32bppArgbSystemDrawingBitmap<TPixel>(Image<TPixel> image)
             where TPixel : unmanaged, IPixel<TPixel>
         {

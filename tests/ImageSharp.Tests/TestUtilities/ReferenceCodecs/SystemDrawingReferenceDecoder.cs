@@ -1,6 +1,8 @@
 // Copyright (c) Six Labors and contributors.
 // Licensed under the GNU Affero General Public License, Version 3.
 
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 
 using SixLabors.ImageSharp.Formats;
@@ -16,19 +18,33 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
         public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using (var sourceBitmap = new System.Drawing.Bitmap(stream))
+            using (var sourceBitmap = new Bitmap(stream))
             {
-                if (sourceBitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                if (sourceBitmap.PixelFormat == PixelFormat.Format32bppArgb)
                 {
+                    if (sourceBitmap.RawFormat.Equals(ImageFormat.Gif) && ImageAnimator.CanAnimate(sourceBitmap))
+                    {
+                        Image<TPixel> multiFrameImage = SystemDrawingBridge.From32bppArgbSystemDrawingBitmap<TPixel>(sourceBitmap);
+                        var dimension = new FrameDimension(sourceBitmap.FrameDimensionsList[0]);
+                        int frameCount = sourceBitmap.GetFrameCount(dimension);
+                        for (int i = 1; i < frameCount; i++)
+                        {
+                            sourceBitmap.SelectActiveFrame(dimension, i);
+                            SystemDrawingBridge.AddFrame(sourceBitmap, multiFrameImage);
+                        }
+
+                        return multiFrameImage;
+                    }
+
                     return SystemDrawingBridge.From32bppArgbSystemDrawingBitmap<TPixel>(sourceBitmap);
                 }
 
-                using (var convertedBitmap = new System.Drawing.Bitmap(
+                using (var convertedBitmap = new Bitmap(
                     sourceBitmap.Width,
                     sourceBitmap.Height,
-                    System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+                    PixelFormat.Format32bppArgb))
                 {
-                    using (var g = System.Drawing.Graphics.FromImage(convertedBitmap))
+                    using (var g = Graphics.FromImage(convertedBitmap))
                     {
                         g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -45,7 +61,7 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
 
         public IImageInfo Identify(Configuration configuration, Stream stream)
         {
-            using (var sourceBitmap = new System.Drawing.Bitmap(stream))
+            using (var sourceBitmap = new Bitmap(stream))
             {
                 var pixelType = new PixelTypeInfo(System.Drawing.Image.GetPixelFormatSize(sourceBitmap.PixelFormat));
                 return new ImageInfo(pixelType, sourceBitmap.Width, sourceBitmap.Height, new ImageMetadata());
