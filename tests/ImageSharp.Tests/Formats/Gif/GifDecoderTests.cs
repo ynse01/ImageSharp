@@ -11,7 +11,7 @@ using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Tests.TestUtilities;
 using SixLabors.ImageSharp.Tests.TestUtilities.ImageComparison;
-using SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs;
+
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -35,8 +35,8 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         {
             using (Image<TPixel> image = provider.GetImage())
             {
-                image.DebugSave(provider, encoder: new GifEncoder(), extension: "gif", appendPixelTypeToFileName: false);
-                image.CompareToOriginal(provider);
+                image.DebugSaveMultiFrame(provider);
+                image.CompareToReferenceOutputMultiFrame(provider, ImageComparer.Exact);
             }
         }
 
@@ -66,8 +66,8 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         {
             using (Image<TPixel> image = provider.GetImage())
             {
-                image.DebugSave(provider, encoder: new GifEncoder(), extension: "gif", appendPixelTypeToFileName: true);
-                image.CompareToOriginal(provider);
+                image.DebugSave(provider);
+                image.CompareFirstFrameToReferenceOutput(ImageComparer.Exact, provider);
             }
         }
 
@@ -75,14 +75,14 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         [WithFile(TestImages.Gif.Cheers, PixelTypes.Rgba32, 93)]
         [WithFile(TestImages.Gif.Rings, PixelTypes.Rgba32, 1)]
         [WithFile(TestImages.Gif.Issues.BadDescriptorWidth, PixelTypes.Rgba32, 36)]
-        public void Decode_Works<TPixel>(TestImageProvider<TPixel> provider, int expectedFrameCount)
+        public void Decode_VerifyRootFrameAndFrameCount<TPixel>(TestImageProvider<TPixel> provider, int expectedFrameCount)
             where TPixel : unmanaged, IPixel<TPixel>
         {
             using (Image<TPixel> image = provider.GetImage())
             {
                 Assert.Equal(expectedFrameCount, image.Frames.Count);
-                image.DebugSave(provider, extension: "gif");
-                image.CompareToOriginal(provider);
+                image.DebugSave(provider);
+                image.CompareFirstFrameToReferenceOutput(ImageComparer.Exact, provider);
             }
         }
 
@@ -179,8 +179,8 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         {
             using (Image<TPixel> image = provider.GetImage())
             {
-                image.DebugSave(provider, extension: "gif");
-                image.CompareToOriginal(provider);
+                image.DebugSave(provider);
+                image.CompareFirstFrameToReferenceOutput(ImageComparer.Exact, provider);
             }
         }
 
