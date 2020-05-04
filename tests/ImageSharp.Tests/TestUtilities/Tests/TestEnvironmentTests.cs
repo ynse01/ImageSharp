@@ -80,7 +80,7 @@ namespace SixLabors.ImageSharp.Tests
         [InlineData("lol/foo.png", typeof(MagickReferenceDecoder))]
         [InlineData("lol/Rofl.bmp", typeof(SystemDrawingReferenceDecoder))]
         [InlineData("lol/Baz.JPG", typeof(JpegDecoder))]
-        [InlineData("lol/Baz.gif", typeof(SystemDrawingReferenceDecoder))]
+        [InlineData("lol/Baz.gif", typeof(MagickReferenceDecoder))]
         public void GetReferenceDecoder_ReturnsCorrectDecoders_Windows(string fileName, Type expectedDecoderType)
         {
             if (TestEnvironment.IsLinux)

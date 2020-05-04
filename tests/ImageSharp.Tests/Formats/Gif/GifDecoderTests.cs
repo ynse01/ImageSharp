@@ -33,7 +33,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         public void Decode_VerifyAllFrames<TPixel>(TestImageProvider<TPixel> provider)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using (Image<TPixel> image = provider.GetImage())
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 image.DebugSaveMultiFrame(provider);
                 image.CompareToReferenceOutputMultiFrame(provider, ImageComparer.Exact);
@@ -64,7 +64,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         public void GifDecoder_IsNotBoundToSinglePixelType<TPixel>(TestImageProvider<TPixel> provider)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using (Image<TPixel> image = provider.GetImage())
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 image.DebugSave(provider);
                 image.CompareFirstFrameToReferenceOutput(ImageComparer.Exact, provider);
@@ -78,7 +78,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         public void Decode_VerifyRootFrameAndFrameCount<TPixel>(TestImageProvider<TPixel> provider, int expectedFrameCount)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using (Image<TPixel> image = provider.GetImage())
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 Assert.Equal(expectedFrameCount, image.Frames.Count);
                 image.DebugSave(provider);
@@ -104,7 +104,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         {
             using (Image<TPixel> image = provider.GetImage(new GifDecoder { DecodingMode = FrameDecodingMode.All }))
             {
-                Assert.True(image.Frames.Count > 1);
+                Assert.Equal(5, image.Frames.Count);
             }
         }
 
@@ -177,7 +177,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         public void Issue405_BadApplicationExtensionBlockLength<TPixel>(TestImageProvider<TPixel> provider)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using (Image<TPixel> image = provider.GetImage())
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 image.DebugSave(provider);
                 image.CompareFirstFrameToReferenceOutput(ImageComparer.Exact, provider);

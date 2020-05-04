@@ -22,7 +22,7 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
             {
                 if (sourceBitmap.PixelFormat == PixelFormat.Format32bppArgb)
                 {
-                    if (sourceBitmap.RawFormat.Equals(ImageFormat.Gif) && ImageAnimator.CanAnimate(sourceBitmap))
+                    if (sourceBitmap.RawFormat.Equals(ImageFormat.Gif))
                     {
                         Image<TPixel> multiFrameImage = SystemDrawingBridge.From32bppArgbSystemDrawingBitmap<TPixel>(sourceBitmap);
                         var dimension = new FrameDimension(sourceBitmap.FrameDimensionsList[0]);

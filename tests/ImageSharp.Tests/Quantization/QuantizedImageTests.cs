@@ -2,7 +2,7 @@
 // Licensed under the GNU Affero General Public License, Version 3.
 
 using System;
-
+using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 
@@ -13,6 +13,8 @@ namespace SixLabors.ImageSharp.Tests
     public class QuantizedImageTests
     {
         private Configuration Configuration => Configuration.Default;
+
+        private static GifDecoder GifDecoder => new GifDecoder();
 
         [Fact]
         public void QuantizersDitherByDefault()
@@ -56,7 +58,7 @@ namespace SixLabors.ImageSharp.Tests
             bool dither)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using (Image<TPixel> image = provider.GetImage())
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 Assert.True(image[0, 0].Equals(default));
 
@@ -86,7 +88,7 @@ namespace SixLabors.ImageSharp.Tests
         public void WuQuantizerYieldsCorrectTransparentPixel<TPixel>(TestImageProvider<TPixel> provider, bool dither)
             where TPixel : unmanaged, IPixel<TPixel>
         {
-            using (Image<TPixel> image = provider.GetImage())
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 Assert.True(image[0, 0].Equals(default));
 

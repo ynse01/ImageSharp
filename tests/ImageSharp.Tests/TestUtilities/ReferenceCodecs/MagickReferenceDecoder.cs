@@ -54,13 +54,13 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
             where TPixel : unmanaged, IPixel<TPixel>
         {
             using var imageCollection = new MagickImageCollection(stream);
+            imageCollection.Coalesce();
             var result = new Image<TPixel>(configuration, imageCollection[0].Width, imageCollection[0].Height);
             for (int i = 1; i < imageCollection.Count; i++)
             {
                 result.Frames.CreateFrame();
             }
 
-            imageCollection.Coalesce();
             for (int i = 0; i < imageCollection.Count; i++)
             {
                 IMagickImage magickImage = imageCollection[i];
