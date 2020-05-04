@@ -35,8 +35,8 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
         {
             using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
-                image.DebugSaveMultiFrame(provider);
-                image.CompareToReferenceOutputMultiFrame(provider, ImageComparer.Exact);
+                image.DebugSave(provider);
+                image.CompareToOriginal(provider);
             }
         }
 
@@ -67,7 +67,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
             using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 image.DebugSave(provider);
-                image.CompareFirstFrameToReferenceOutput(ImageComparer.Exact, provider);
+                image.CompareToOriginal(provider);
             }
         }
 
@@ -180,7 +180,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
             using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 image.DebugSave(provider);
-                image.CompareFirstFrameToReferenceOutput(ImageComparer.Exact, provider);
+                image.CompareToOriginal(provider);
             }
         }
 

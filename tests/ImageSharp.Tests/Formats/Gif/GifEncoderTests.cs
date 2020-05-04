@@ -3,12 +3,13 @@
 
 using System.Globalization;
 using System.IO;
-using SixLabors.ImageSharp.Formats;
+
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.ImageSharp.Tests.TestUtilities.ImageComparison;
+
 using Xunit;
 
 // ReSharper disable InconsistentNaming
