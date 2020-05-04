@@ -512,6 +512,12 @@ namespace SixLabors.ImageSharp.Formats.Gif
                             Rgb24 rgb = colorTable[index];
                             pixel.FromRgb24(rgb);
                         }
+                        else
+                        {
+                            ref TPixel pixel = ref Unsafe.Add(ref rowRef, x);
+                            Rgb24 rgb = colorTable[index];
+                            pixel.FromRgba32(new Rgba32(rgb.R, rgb.G, rgb.B, 0));
+                        }
                     }
                 }
             }
