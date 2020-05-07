@@ -1,11 +1,13 @@
 // Copyright (c) Six Labors and contributors.
 // Licensed under the GNU Affero General Public License, Version 3.
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
 using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -22,15 +24,18 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
             {
                 if (sourceBitmap.PixelFormat == PixelFormat.Format32bppArgb)
                 {
-                    if (sourceBitmap.RawFormat.Equals(ImageFormat.Gif))
+                    if (sourceBitmap.RawFormat.Equals(ImageFormat.Gif) && ImageAnimator.CanAnimate(sourceBitmap))
                     {
                         Image<TPixel> multiFrameImage = SystemDrawingBridge.From32bppArgbSystemDrawingBitmap<TPixel>(sourceBitmap);
-                        var dimension = new FrameDimension(sourceBitmap.FrameDimensionsList[0]);
-                        int frameCount = sourceBitmap.GetFrameCount(dimension);
+                        int frameCount = sourceBitmap.GetFrameCount(FrameDimension.Time);
+                        byte[] frameDelay = sourceBitmap.GetPropertyItem(20736).Value;
+                        int delayIndex = 0;
                         for (int i = 1; i < frameCount; i++)
                         {
-                            sourceBitmap.SelectActiveFrame(dimension, i);
-                            SystemDrawingBridge.AddFrame(sourceBitmap, multiFrameImage);
+                            sourceBitmap.SelectActiveFrame(FrameDimension.Time, i);
+                            var delay = BitConverter.ToInt32(frameDelay, delayIndex);
+                            SystemDrawingBridge.AddFrameWithDelay(sourceBitmap, multiFrameImage, delay);
+                            delayIndex += 4;
                         }
 
                         return multiFrameImage;

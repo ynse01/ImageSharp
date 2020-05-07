@@ -94,11 +94,14 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
         /// <typeparam name="TPixel">The pixel format.</typeparam>
         /// <param name="bmp">The bitmap to copy data from.</param>
         /// <param name="image">The destination image.</param>
-        public static void AddFrame<TPixel>(Bitmap bmp, Image<TPixel> image)
+        /// <param name="delay">The frame delay in number of hundredths (1/100) of a second.</param>
+        public static void AddFrameWithDelay<TPixel>(Bitmap bmp, Image<TPixel> image, int delay)
             where TPixel : unmanaged, IPixel<TPixel>
         {
             image.Frames.CreateFrame();
-            CopyDataFrom32BppDrawingBitmap(bmp, image, image.Frames.Count - 1);
+            var frameIdx = image.Frames.Count - 1;
+            image.Frames[frameIdx].Metadata.GetGifMetadata().FrameDelay = delay;
+            CopyDataFrom32BppDrawingBitmap(bmp, image, frameIdx);
         }
 
         /// <summary>
