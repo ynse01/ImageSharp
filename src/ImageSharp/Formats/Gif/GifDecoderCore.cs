@@ -410,6 +410,9 @@ namespace SixLabors.ImageSharp.Formats.Gif
         {
             int imageWidth = this.logicalScreenDescriptor.Width;
             int imageHeight = this.logicalScreenDescriptor.Height;
+            bool transFlag = this.graphicsControlExtension.TransparencyFlag;
+            byte transIndex = this.graphicsControlExtension.TransparencyIndex;
+            var transparentColor = new Rgba32(colorTable[transIndex].R, colorTable[transIndex].G, colorTable[transIndex].B, 0);
 
             ImageFrame<TPixel> prevFrame = null;
             ImageFrame<TPixel> currentFrame = null;
@@ -417,8 +420,10 @@ namespace SixLabors.ImageSharp.Formats.Gif
 
             if (previousFrame is null)
             {
-                // This initializes the image to become fully transparent because the alpha channel is zero.
-                image = new Image<TPixel>(this.configuration, imageWidth, imageHeight, this.metadata);
+                // This initializes the image to become fully transparent.
+                TPixel color = default;
+                color.FromRgba32(transparentColor);
+                image = new Image<TPixel>(this.configuration, imageWidth, imageHeight, color, this.metadata);
 
                 this.SetFrameMetadata(image.Frames.RootFrame.Metadata);
 
@@ -432,12 +437,17 @@ namespace SixLabors.ImageSharp.Formats.Gif
                 }
 
                 currentFrame = image.Frames.AddFrame(previousFrame); // This clones the frame and adds it the collection
-
                 this.SetFrameMetadata(currentFrame.Metadata);
 
                 imageFrame = currentFrame;
 
-                this.RestoreToBackground(imageFrame);
+                if (this.graphicsControlExtension.DisposalMethod == GifDisposalMethod.RestoreToBackground)
+                {
+                    // Note: here intentionally the transparent color is used and not the background color.
+                    // This seems counter intuitive, but is common practice for other decoders.
+                    // See "Dispose Background" section of http://www.imagemagick.org/Usage/anim_basics/
+                    this.RestoreToBackground(imageFrame, transparentColor);
+                }
             }
 
             int interlacePass = 0; // The interlace pass
@@ -447,8 +457,6 @@ namespace SixLabors.ImageSharp.Formats.Gif
             int descriptorBottom = descriptorTop + descriptor.Height;
             int descriptorLeft = descriptor.Left;
             int descriptorRight = descriptorLeft + descriptor.Width;
-            bool transFlag = this.graphicsControlExtension.TransparencyFlag;
-            byte transIndex = this.graphicsControlExtension.TransparencyIndex;
 
             for (int y = descriptorTop; y < descriptorBottom && y < imageHeight; y++)
             {
@@ -541,7 +549,8 @@ namespace SixLabors.ImageSharp.Formats.Gif
         /// </summary>
         /// <typeparam name="TPixel">The pixel format.</typeparam>
         /// <param name="frame">The frame.</param>
-        private void RestoreToBackground<TPixel>(ImageFrame<TPixel> frame)
+        /// <param name="backgroundColor">The background color to restore to.</param>
+        private void RestoreToBackground<TPixel>(ImageFrame<TPixel> frame, Rgba32 backgroundColor)
             where TPixel : unmanaged, IPixel<TPixel>
         {
             if (this.restoreArea is null)
@@ -549,8 +558,15 @@ namespace SixLabors.ImageSharp.Formats.Gif
                 return;
             }
 
+            TPixel color = default;
+            color.FromRgba32(backgroundColor);
+
             Buffer2DRegion<TPixel> pixelRegion = frame.PixelBuffer.GetRegion(this.restoreArea.Value);
-            pixelRegion.Clear();
+            for (int y = 0; y < pixelRegion.Height; y++)
+            {
+                Span<TPixel> row = pixelRegion.GetRowSpan(y);
+                row.Fill(color);
+            }
 
             this.restoreArea = null;
         }

@@ -55,7 +55,7 @@ namespace SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs
         {
             using var imageCollection = new MagickImageCollection(stream);
             imageCollection.Coalesce();
-            var result = new Image<TPixel>(configuration, imageCollection[0].Width, imageCollection[0].Height);
+            var result = new Image<TPixel>(configuration, imageCollection[0].Page.Width, imageCollection[0].Page.Height);
             for (int i = 1; i < imageCollection.Count; i++)
             {
                 result.Frames.CreateFrame();
