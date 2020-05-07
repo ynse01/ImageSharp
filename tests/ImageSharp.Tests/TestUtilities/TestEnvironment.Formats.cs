@@ -74,7 +74,7 @@ namespace SixLabors.ImageSharp.Tests
 
             cfg.ConfigureCodecs(
                 GifFormat.Instance,
-                MagickReferenceDecoder.Instance,
+                SystemDrawingReferenceDecoder.Instance,
                 new GifEncoder(),
                 new GifImageFormatDetector());
 
