@@ -387,16 +387,25 @@ namespace SixLabors.ImageSharp.Tests
         public static class Gif
         {
             public const string Rings = "Gif/rings.gif";
-            public const string Giphy = "Gif/giphy.gif";
-            public const string Cheers = "Gif/cheers.gif";
             public const string Receipt = "Gif/receipt.gif";
             public const string Trans = "Gif/trans.gif";
-            public const string Kumin = "Gif/kumin.gif";
             public const string Leo = "Gif/leo.gif";
             public const string Ratio4x1 = "Gif/base_4x1.gif";
             public const string Ratio1x4 = "Gif/base_1x4.gif";
             public const string LargeComment = "Gif/large_comment.gif";
             public const string GlobalQuantizationTest = "Gif/GlobalQuantizationTest.gif";
+
+            // Images with dispose method: NotDispose
+            public const string Cheers = "Gif/cheers.gif";
+            public const string RestoreNotDispose = "Gif/anim_none.gif";
+
+            // Images with dispose method: restore to background.
+            public const string RestoreToBackground = "Gif/anim_bgnd.gif";
+            public const string Kumin = "Gif/kumin.gif";
+            public const string Giphy = "Gif/giphy.gif";
+
+            // Images with dispose method: restore to previous.
+            public const string RestoreToPrevious = "Gif/canvas_prev.gif";
 
             // Test images from https://github.com/robert-ancell/pygif/tree/master/test-suite
             public const string ZeroSize = "Gif/image-zero-size.gif";

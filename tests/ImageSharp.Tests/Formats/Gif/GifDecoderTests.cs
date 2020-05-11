@@ -11,7 +11,7 @@ using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Tests.TestUtilities;
 using SixLabors.ImageSharp.Tests.TestUtilities.ImageComparison;
-
+using SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -23,20 +23,57 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
 
         private static GifDecoder GifDecoder => new GifDecoder();
 
-        public static readonly string[] MultiFrameTestFiles =
-        {
-            TestImages.Gif.Giphy, TestImages.Gif.Kumin
-        };
-
         [Theory]
-        [WithFileCollection(nameof(MultiFrameTestFiles), PixelTypes.Rgba32)]
-        public void Decode_VerifyAllFrames<TPixel>(TestImageProvider<TPixel> provider)
+        [WithFile(TestImages.Gif.Cheers, PixelTypes.Rgba32)]
+        [WithFile(TestImages.Gif.RestoreNotDispose, PixelTypes.Rgba32)]
+        public void Decode_WithDisposeMethod_NotDispose_VerifyAllFrames<TPixel>(TestImageProvider<TPixel> provider)
             where TPixel : unmanaged, IPixel<TPixel>
         {
             using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 image.DebugSave(provider);
                 image.CompareToOriginal(provider);
+            }
+        }
+
+        [Theory]
+        [WithFile(TestImages.Gif.Kumin, PixelTypes.Rgba32)]
+        [WithFile(TestImages.Gif.RestoreToBackground, PixelTypes.Rgba32)]
+        public void Decode_WithDisposeMethod_RestoreToBackground_VerifyAllFrames<TPixel>(TestImageProvider<TPixel> provider)
+            where TPixel : unmanaged, IPixel<TPixel>
+        {
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
+            {
+                image.DebugSave(provider);
+                image.CompareToOriginal(provider);
+            }
+        }
+
+        [Theory]
+        [WithFile(TestImages.Gif.RestoreToPrevious, PixelTypes.Rgba32)]
+        public void Decode_WithDisposeMethod_Previous_VerifyAllFrames<TPixel>(TestImageProvider<TPixel> provider)
+            where TPixel : unmanaged, IPixel<TPixel>
+        {
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
+            {
+                image.DebugSave(provider);
+                image.CompareToOriginal(provider);
+            }
+        }
+
+        [Theory]
+        [WithFile(TestImages.Gif.Giphy, PixelTypes.Rgba32)]
+        public void Decode_WithDisposeMethod_RestoreToBackground_LocalPalette_VerifyAllFrames<TPixel>(TestImageProvider<TPixel> provider)
+            where TPixel : unmanaged, IPixel<TPixel>
+        {
+            using (Image<TPixel> image = provider.GetImage(GifDecoder))
+            {
+                image.DebugSave(provider);
+
+                // Note: Using here magick reference decoder instead of Drawing, because drawing decoder
+                // seems to ignore local color palette and uses (255, 255, 255, 0) from the global palette,
+                // instead of (0, 0, 0, 0) to restore the background.
+                image.CompareToOriginal(provider, new MagickReferenceDecoder());
             }
         }
 
@@ -67,7 +104,11 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
             using (Image<TPixel> image = provider.GetImage(GifDecoder))
             {
                 image.DebugSave(provider);
-                image.CompareToOriginal(provider);
+
+                // Note: The drawing reference decoder sets the transparent pixels to zero (0, 0, 0, 0) instead of the transparent color.
+                // Magick does use the transparent color from the palette, as ImageSharp which initializes the image with the
+                // transparent color if the transparent color flag is set.
+                image.CompareToOriginal(provider, new MagickReferenceDecoder());
             }
         }
 

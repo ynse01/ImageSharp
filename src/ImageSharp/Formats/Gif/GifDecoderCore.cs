@@ -39,6 +39,11 @@ namespace SixLabors.ImageSharp.Formats.Gif
         private IManagedByteBuffer globalColorTable;
 
         /// <summary>
+        /// The background color.
+        /// </summary>
+        private Rgba32 backgroundColor;
+
+        /// <summary>
         /// The area to restore.
         /// </summary>
         private Rectangle? restoreArea;
@@ -412,7 +417,7 @@ namespace SixLabors.ImageSharp.Formats.Gif
             int imageHeight = this.logicalScreenDescriptor.Height;
             bool transFlag = this.graphicsControlExtension.TransparencyFlag;
             byte transIndex = this.graphicsControlExtension.TransparencyIndex;
-            var transparentColor = new Rgba32(colorTable[transIndex].R, colorTable[transIndex].G, colorTable[transIndex].B, 0);
+            Rgba32 transparentColor = transFlag ? new Rgba32(colorTable[transIndex].R, colorTable[transIndex].G, colorTable[transIndex].B, 0) : default;
 
             ImageFrame<TPixel> prevFrame = null;
             ImageFrame<TPixel> currentFrame = null;
@@ -420,9 +425,9 @@ namespace SixLabors.ImageSharp.Formats.Gif
 
             if (previousFrame is null)
             {
-                // This initializes the image to become fully transparent.
                 TPixel color = default;
-                color.FromRgba32(transparentColor);
+                color.FromRgba32(transFlag ? transparentColor : this.backgroundColor);
+
                 image = new Image<TPixel>(this.configuration, imageWidth, imageHeight, color, this.metadata);
 
                 this.SetFrameMetadata(image.Frames.RootFrame.Metadata);
@@ -443,10 +448,18 @@ namespace SixLabors.ImageSharp.Formats.Gif
 
                 if (this.graphicsControlExtension.DisposalMethod == GifDisposalMethod.RestoreToBackground)
                 {
-                    // Note: here intentionally the transparent color is used and not the background color.
-                    // This seems counter intuitive, but is common practice for other decoders.
-                    // See "Dispose Background" section of http://www.imagemagick.org/Usage/anim_basics/
-                    this.RestoreToBackground(imageFrame, transparentColor);
+                    if (transFlag)
+                    {
+                        // Note: here intentionally the transparent color is used and not the background color.
+                        // This seems counter intuitive, but is common practice for other decoders.
+                        // See "Dispose Background" section of http://www.imagemagick.org/Usage/anim_basics/
+                        this.RestoreToBackground(imageFrame, transparentColor);
+                    }
+                    else
+                    {
+                        // If the global color table flag is not set, backgroundColor will be set to default.
+                        this.RestoreToBackground(imageFrame, this.backgroundColor);
+                    }
                 }
             }
 
@@ -519,12 +532,6 @@ namespace SixLabors.ImageSharp.Formats.Gif
                             ref TPixel pixel = ref Unsafe.Add(ref rowRef, x);
                             Rgb24 rgb = colorTable[index];
                             pixel.FromRgb24(rgb);
-                        }
-                        else
-                        {
-                            ref TPixel pixel = ref Unsafe.Add(ref rowRef, x);
-                            Rgb24 rgb = colorTable[index];
-                            pixel.FromRgba32(new Rgba32(rgb.R, rgb.G, rgb.B, 0));
                         }
                     }
                 }
@@ -652,8 +659,14 @@ namespace SixLabors.ImageSharp.Formats.Gif
 
                 this.globalColorTable = this.MemoryAllocator.AllocateManagedByteBuffer(globalColorTableLength, AllocationOptions.Clean);
 
-                // Read the global color table data from the stream
+                // Read the global color table data from the stream.
                 stream.Read(this.globalColorTable.Array, 0, globalColorTableLength);
+
+                ReadOnlySpan<Rgb24> colorTable = MemoryMarshal.Cast<byte, Rgb24>(this.globalColorTable.GetSpan());
+                byte backgroundIndex = this.logicalScreenDescriptor.BackgroundColorIndex;
+                this.backgroundColor = this.logicalScreenDescriptor.GlobalColorTableFlag
+                    ? new Rgba32(colorTable[backgroundIndex].R, colorTable[backgroundIndex].G, colorTable[backgroundIndex].B, byte.MaxValue)
+                    : default;
             }
         }
     }
