@@ -105,7 +105,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
             {
                 image.DebugSave(provider);
 
-                // Note: The drawing reference decoder sets the transparent pixels to zero (0, 0, 0, 0) instead of the transparent color.
+                // Note: The drawing reference decoder sets the transparent pixels to zero (0, 0, 0, 0) instead of the transparent color (255, 255, 255).
                 // Magick does use the transparent color from the palette, as ImageSharp which initializes the image with the
                 // transparent color if the transparent color flag is set.
                 image.CompareToOriginal(provider, new MagickReferenceDecoder());

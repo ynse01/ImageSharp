@@ -244,7 +244,7 @@ namespace SixLabors.ImageSharp.Formats.Gif
 
             for (int i = rgbaSpan.Length - 1; i >= 0; i--)
             {
-                if (Unsafe.Add(ref rgbaSpanRef, i).Equals(default))
+                if (Unsafe.Add(ref rgbaSpanRef, i).A == 0)
                 {
                     index = i;
                 }

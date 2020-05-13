@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.ImageSharp.Tests.TestUtilities.ImageComparison;
-
+using SixLabors.ImageSharp.Tests.TestUtilities.ReferenceCodecs;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -155,6 +155,19 @@ namespace SixLabors.ImageSharp.Tests.Formats.Gif
 
             var testDetails = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", maxPixels, scanRatio);
             image.VerifyEncoder(provider, "gif", testDetails, encoder, ImageComparer.Tolerant());
+        }
+
+        [Theory]
+        [WithFile(TestImages.Gif.Trans, PixelTypes.Rgba32)]
+        public void Encode_PreservesNoneDefaultTransparentPixels<TPixel>(TestImageProvider<TPixel> provider)
+            where TPixel : unmanaged, IPixel<TPixel>
+        {
+            using Image<TPixel> image = provider.GetImage(new GifDecoder());
+            var encoder = new GifEncoder() { Quantizer = new WuQuantizer() };
+
+            // Note: The drawing reference decoder sets the transparent pixels to zero (0, 0, 0, 0) instead of the transparent color (255, 255, 255).
+            // Magick decoder does use the transparent color from the palette.
+            image.VerifyEncoder(provider, "gif", "NoneDefaultTransparency", encoder, referenceDecoder: new MagickReferenceDecoder());
         }
 
         [Fact]
