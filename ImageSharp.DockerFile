@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0.100-buster-slim-arm64v8
+FROM mcr.microsoft.com/dotnet/sdk:3.1.404-buster-arm64v8
 MAINTAINER Brian Popow <popow@gmx.de>
 
 ENV TERM xterm
