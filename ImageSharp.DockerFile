@@ -1,9 +1,7 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2.300-bionic-arm32v7
+FROM mcr.microsoft.com/dotnet/sdk:5.0.100-buster-slim-arm64v8
 MAINTAINER Brian Popow <popow@gmx.de>
 
 ENV TERM xterm
-
-# RUN uname -a
 
 RUN apt-get update
 RUN apt-get -y install libgdiplus libgif-dev autoconf libtool automake build-essential gettext libglib2.0-dev libcairo2-dev libtiff-dev libexif-dev
@@ -12,4 +10,4 @@ RUN apt-get install nano
 COPY . /app/
 WORKDIR /app/
 RUN dotnet restore
-CMD ["dotnet", "test", "tests/ImageSharp.Tests/ImageSharp.Tests.csproj", "-c", "Release", "-f", "netcoreapp2.1"]
+CMD ["dotnet", "test", "tests/ImageSharp.Tests/ImageSharp.Tests.csproj", "-c", "Release", "-f", "netcoreapp3.1"]
