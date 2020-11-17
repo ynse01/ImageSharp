@@ -10,6 +10,14 @@ on:
         branches:
             - master
 jobs:
+    TestsWithArm:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Docker compose build
+          run: docker-compose build
+        - name: Docker compose up
+          run: docker-compose up
     Build:
         strategy:
             matrix:
