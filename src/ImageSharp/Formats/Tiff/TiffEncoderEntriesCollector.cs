@@ -220,7 +220,7 @@ namespace SixLabors.ImageSharp.Formats.Experimental.Tiff
                 {
                     var xmp = new ExifByteArray(ExifTagValue.XMP, ExifDataType.Byte)
                     {
-                        Value = tiffMetadata.XmpProfile
+                        Value = tiffMetadata.XmpProfile.Data
                     };
 
                     this.collector.AddInternal(xmp);

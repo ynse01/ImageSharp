@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0.
 
 using SixLabors.ImageSharp.Formats.Experimental.Tiff.Constants;
+using SixLabors.ImageSharp.Metadata.Profiles.Xmp;
 
 namespace SixLabors.ImageSharp.Formats.Experimental.Tiff
 {
@@ -45,10 +46,9 @@ namespace SixLabors.ImageSharp.Formats.Experimental.Tiff
         public TiffCompression Compression { get; internal set; } = TiffCompression.None;
 
         /// <summary>
-        /// Gets or sets the XMP profile.
-        /// For internal use only. ImageSharp not support XMP profile.
+        /// Gets the XMP profile.
         /// </summary>
-        internal byte[] XmpProfile { get; set; }
+        public XmpProfile XmpProfile { get; internal set; }
 
         /// <inheritdoc/>
         public IDeepCloneable DeepClone() => new TiffMetadata(this);

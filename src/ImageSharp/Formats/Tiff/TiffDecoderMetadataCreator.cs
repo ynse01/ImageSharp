@@ -7,6 +7,7 @@ using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.Metadata.Profiles.Icc;
 using SixLabors.ImageSharp.Metadata.Profiles.Iptc;
+using SixLabors.ImageSharp.Metadata.Profiles.Xmp;
 
 namespace SixLabors.ImageSharp.Formats.Experimental.Tiff
 {
@@ -50,7 +51,7 @@ namespace SixLabors.ImageSharp.Formats.Experimental.Tiff
                         byte[] buf = frame.GetArray<byte>(ExifTag.XMP, true);
                         if (buf != null)
                         {
-                            tiffMetadata.XmpProfile = buf;
+                            tiffMetadata.XmpProfile = new XmpProfile(buf);
                         }
                     }
 

@@ -4,12 +4,13 @@
 using System;
 using System.IO;
 using System.Linq;
-
+using System.Text;
 using SixLabors.ImageSharp.Formats.Experimental.Tiff;
 using SixLabors.ImageSharp.Formats.Experimental.Tiff.Constants;
 using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.Metadata.Profiles.Icc;
 using SixLabors.ImageSharp.Metadata.Profiles.Iptc;
+using SixLabors.ImageSharp.Metadata.Profiles.Xmp;
 using SixLabors.ImageSharp.PixelFormats;
 
 using Xunit;
@@ -37,7 +38,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Tiff
                 Compression = TiffCompression.Deflate,
                 BitsPerPixel = TiffBitsPerPixel.Pixel8,
                 ByteOrder = ByteOrder.BigEndian,
-                XmpProfile = new byte[3]
+                XmpProfile = new XmpProfile(new byte[] { 1, 2, 3 })
             };
 
             var clone = (TiffMetadata)meta.DeepClone();
@@ -45,12 +46,12 @@ namespace SixLabors.ImageSharp.Tests.Formats.Tiff
             clone.Compression = TiffCompression.None;
             clone.BitsPerPixel = TiffBitsPerPixel.Pixel24;
             clone.ByteOrder = ByteOrder.LittleEndian;
-            clone.XmpProfile = new byte[1];
+            clone.XmpProfile = new XmpProfile(new byte[] { 1, 2, 3, 4 });
 
             Assert.False(meta.Compression == clone.Compression);
             Assert.False(meta.BitsPerPixel == clone.BitsPerPixel);
             Assert.False(meta.ByteOrder == clone.ByteOrder);
-            Assert.False(meta.XmpProfile.SequenceEqual(clone.XmpProfile));
+            Assert.False(meta.XmpProfile.Equals(clone.XmpProfile));
         }
 
         [Theory]
@@ -124,7 +125,6 @@ namespace SixLabors.ImageSharp.Tests.Formats.Tiff
                 else
                 {
                     Assert.NotNull(meta.XmpProfile);
-                    Assert.Equal(2599, meta.XmpProfile.Length);
                 }
             }
         }
@@ -254,7 +254,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Tiff
 
             if (preserveMetadata)
             {
-                Assert.Equal(tiffMeta.XmpProfile, tiffMetaOut.XmpProfile);
+                Assert.Equal(tiffMeta.XmpProfile.Data, tiffMetaOut.XmpProfile.Data);
 
                 Assert.Equal("IrfanView", frameMeta.Software);
                 Assert.Equal("This is Название", frameMeta.ImageDescription);
@@ -295,7 +295,8 @@ namespace SixLabors.ImageSharp.Tests.Formats.Tiff
             TiffMetadata tiffMeta = image.Metadata.GetTiffMetadata();
             TiffFrameMetadata frameMeta = image.Frames.RootFrame.Metadata.GetTiffMetadata();
 
-            tiffMeta.XmpProfile = new byte[] { 1, 2, 3, 4, 5 };
+            string xmpTestData = @"<unittest>test</unittest>";
+            tiffMeta.XmpProfile = new XmpProfile(Encoding.ASCII.GetBytes(xmpTestData));
 
             coreMeta.IptcProfile = new IptcProfile();
             coreMeta.IptcProfile.SetValue(IptcTag.Caption, "iptc caption");
@@ -350,7 +351,7 @@ namespace SixLabors.ImageSharp.Tests.Formats.Tiff
                 Assert.NotNull(coreMeta.IptcProfile);
                 Assert.NotNull(coreMeta.IccProfile);
 
-                Assert.Equal(tiffMeta.XmpProfile, tiffMetaOut.XmpProfile);
+                Assert.Equal(tiffMeta.XmpProfile.Data, tiffMetaOut.XmpProfile.Data);
                 Assert.Equal(coreMeta.IptcProfile.Data, coreMetaOut.IptcProfile.Data);
                 Assert.Equal(coreMeta.IccProfile.ToByteArray(), coreMetaOut.IccProfile.ToByteArray());
 
