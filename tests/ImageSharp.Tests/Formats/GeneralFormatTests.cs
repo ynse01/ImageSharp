@@ -247,6 +247,9 @@ public class GeneralFormatTests
     [InlineData(100, 100, "tiff")]
     [InlineData(100, 10, "tiff")]
     [InlineData(10, 100, "tiff")]
+    [InlineData(100, 100, "dng")]
+    [InlineData(100, 10, "dng")]
+    [InlineData(10, 100, "dng")]
 
     public void CanIdentifyImageLoadedFromBytes(int width, int height, string extension)
     {

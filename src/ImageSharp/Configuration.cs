@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Dng;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Pbm;
@@ -210,6 +211,7 @@ public sealed class Configuration
     /// <see cref="BmpConfigurationModule"/>.
     /// <see cref="PbmConfigurationModule"/>.
     /// <see cref="TgaConfigurationModule"/>.
+    /// <see cref="DngConfigurationModule"/>.
     /// <see cref="TiffConfigurationModule"/>.
     /// <see cref="WebpConfigurationModule"/>.
     /// </summary>
@@ -221,6 +223,7 @@ public sealed class Configuration
             new BmpConfigurationModule(),
             new PbmConfigurationModule(),
             new TgaConfigurationModule(),
+            new DngConfigurationModule(),
             new TiffConfigurationModule(),
             new WebpConfigurationModule());
 }
