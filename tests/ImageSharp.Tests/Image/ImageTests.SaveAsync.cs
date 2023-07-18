@@ -60,6 +60,7 @@ public partial class ImageTests
         }
 
         [Theory]
+        [InlineData("test.pcx", "image/vnd.zbrush.pcx")]
         [InlineData("test.pbm", "image/x-portable-pixmap")]
         [InlineData("test.png", "image/png")]
         [InlineData("test.tga", "image/tga")]

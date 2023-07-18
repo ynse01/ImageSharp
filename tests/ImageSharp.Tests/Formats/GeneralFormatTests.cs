@@ -177,6 +177,11 @@ public class GeneralFormatTests
                 image.SaveAsPbm(output);
             }
 
+            using (FileStream output = File.OpenWrite(Path.Combine(path, $"{file.FileNameWithoutExtension}.pcx")))
+            {
+                image.SaveAsPcx(output);
+            }
+
             using (FileStream output = File.OpenWrite(Path.Combine(path, $"{file.FileNameWithoutExtension}.png")))
             {
                 image.SaveAsPng(output);
@@ -221,6 +226,10 @@ public class GeneralFormatTests
     }
 
     [Theory]
+    [InlineData(10, 10, "pcx")]
+    [InlineData(100, 100, "pcx")]
+    [InlineData(100, 10, "pcx")]
+    [InlineData(10, 100, "pcx")]
     [InlineData(10, 10, "pbm")]
     [InlineData(100, 100, "pbm")]
     [InlineData(100, 10, "pbm")]
@@ -258,8 +267,8 @@ public class GeneralFormatTests
 
         ImageInfo imageInfo = Image.Identify(memoryStream);
 
-        Assert.Equal(imageInfo.Width, width);
-        Assert.Equal(imageInfo.Height, height);
+        Assert.Equal(width, imageInfo.Width);
+        Assert.Equal(height, imageInfo.Height);
         Assert.Equal(format, imageInfo.Metadata.DecodedImageFormat);
     }
 

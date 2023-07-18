@@ -8,6 +8,7 @@ using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Pbm;
+using SixLabors.ImageSharp.Formats.Pcx;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Qoi;
 using SixLabors.ImageSharp.Formats.Tga;
@@ -427,6 +428,108 @@ public static partial class ImageExtensions
         => source.SaveAsync(
               stream,
               encoder ?? source.GetConfiguration().ImageFormatsManager.GetEncoder(PbmFormat.Instance),
+              cancellationToken);
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="path">The file path to save the image to.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the path is null.</exception>
+    public static void SaveAsPcx(this Image source, string path) => SaveAsPcx(source, path, default);
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="path">The file path to save the image to.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the path is null.</exception>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public static Task SaveAsPcxAsync(this Image source, string path) => SaveAsPcxAsync(source, path, default);
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="path">The file path to save the image to.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the path is null.</exception>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public static Task SaveAsPcxAsync(this Image source, string path, CancellationToken cancellationToken)
+        => SaveAsPcxAsync(source, path, default, cancellationToken);
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="path">The file path to save the image to.</param>
+    /// <param name="encoder">The encoder to save the image with.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the path is null.</exception>
+    public static void SaveAsPcx(this Image source, string path, PcxEncoder encoder) =>
+        source.Save(
+            path,
+            encoder ?? source.GetConfiguration().ImageFormatsManager.GetEncoder(PcxFormat.Instance));
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="path">The file path to save the image to.</param>
+    /// <param name="encoder">The encoder to save the image with.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the path is null.</exception>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public static Task SaveAsPcxAsync(this Image source, string path, PcxEncoder encoder, CancellationToken cancellationToken = default)
+        => source.SaveAsync(
+              path,
+              encoder ?? source.GetConfiguration().ImageFormatsManager.GetEncoder(PcxFormat.Instance),
+              cancellationToken);
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="stream">The stream to save the image to.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the stream is null.</exception>
+    public static void SaveAsPcx(this Image source, Stream stream)
+        => SaveAsPcx(source, stream, default);
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="stream">The stream to save the image to.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the stream is null.</exception>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public static Task SaveAsPcxAsync(this Image source, Stream stream, CancellationToken cancellationToken = default)
+        => SaveAsPcxAsync(source, stream, default, cancellationToken);
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="stream">The stream to save the image to.</param>
+    /// <param name="encoder">The encoder to save the image with.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the stream is null.</exception>
+    public static void SaveAsPcx(this Image source, Stream stream, PcxEncoder encoder)
+        => source.Save(
+              stream,
+              encoder ?? source.GetConfiguration().ImageFormatsManager.GetEncoder(PcxFormat.Instance));
+
+    /// <summary>
+    /// Saves the image to the given stream with the Pcx format.
+    /// </summary>
+    /// <param name="source">The image this method extends.</param>
+    /// <param name="stream">The stream to save the image to.</param>
+    /// <param name="encoder">The encoder to save the image with.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown if the stream is null.</exception>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public static Task SaveAsPcxAsync(this Image source, Stream stream, PcxEncoder encoder, CancellationToken cancellationToken = default)
+        => source.SaveAsync(
+              stream,
+              encoder ?? source.GetConfiguration().ImageFormatsManager.GetEncoder(PcxFormat.Instance),
               cancellationToken);
 
     /// <summary>

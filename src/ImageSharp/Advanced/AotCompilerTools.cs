@@ -11,6 +11,7 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Jpeg.Components;
 using SixLabors.ImageSharp.Formats.Pbm;
+using SixLabors.ImageSharp.Formats.Pcx;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.Formats.Tiff;
@@ -207,6 +208,7 @@ internal static class AotCompilerTools
         default(GifEncoderCore).Encode<TPixel>(default, default, default);
         default(JpegEncoderCore).Encode<TPixel>(default, default, default);
         default(PbmEncoderCore).Encode<TPixel>(default, default, default);
+        default(PcxEncoderCore).Encode<TPixel>(default, default, default);
         default(PngEncoderCore).Encode<TPixel>(default, default, default);
         default(TgaEncoderCore).Encode<TPixel>(default, default, default);
         default(TiffEncoderCore).Encode<TPixel>(default, default, default);
@@ -225,6 +227,7 @@ internal static class AotCompilerTools
         default(GifDecoderCore).Decode<TPixel>(default, default);
         default(JpegDecoderCore).Decode<TPixel>(default, default);
         default(PbmDecoderCore).Decode<TPixel>(default, default);
+        default(PcxDecoderCore).Decode<TPixel>(default, default);
         default(PngDecoderCore).Decode<TPixel>(default, default);
         default(TgaDecoderCore).Decode<TPixel>(default, default);
         default(TiffDecoderCore).Decode<TPixel>(default, default);
@@ -243,6 +246,7 @@ internal static class AotCompilerTools
         AotCompileImageEncoder<TPixel, GifEncoder>();
         AotCompileImageEncoder<TPixel, JpegEncoder>();
         AotCompileImageEncoder<TPixel, PbmEncoder>();
+        AotCompileImageEncoder<TPixel, PcxEncoder>();
         AotCompileImageEncoder<TPixel, PngEncoder>();
         AotCompileImageEncoder<TPixel, TgaEncoder>();
         AotCompileImageEncoder<TPixel, TiffEncoder>();
@@ -261,6 +265,7 @@ internal static class AotCompilerTools
         AotCompileImageDecoder<TPixel, GifDecoder>();
         AotCompileImageDecoder<TPixel, JpegDecoder>();
         AotCompileImageDecoder<TPixel, PbmDecoder>();
+        AotCompileImageDecoder<TPixel, PcxDecoder>();
         AotCompileImageDecoder<TPixel, PngDecoder>();
         AotCompileImageDecoder<TPixel, TgaDecoder>();
         AotCompileImageDecoder<TPixel, TiffDecoder>();
