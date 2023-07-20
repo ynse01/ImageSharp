@@ -3,22 +3,17 @@
 
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Tests.TestUtilities.ImageComparison;
-using static SixLabors.ImageSharp.Tests.TestImages.Pbm;
+using static SixLabors.ImageSharp.Tests.TestImages.Pcx;
 
 // ReSharper disable InconsistentNaming
-namespace SixLabors.ImageSharp.Tests.Formats.Pbm;
+namespace SixLabors.ImageSharp.Tests.Formats.Pcx;
 
-[Trait("Format", "Pbm")]
-public class PbmRoundTripTests
+[Trait("Format", "Pcx")]
+public class PcxRoundTripTests
 {
     [Theory]
-    [InlineData(BlackAndWhitePlain)]
-    [InlineData(BlackAndWhiteBinary)]
-    [InlineData(GrayscalePlain)]
-    [InlineData(GrayscalePlainNormalized)]
-    [InlineData(GrayscalePlainMagick)]
-    [InlineData(GrayscaleBinary)]
-    public void PbmGrayscaleImageCanRoundTrip(string imagePath)
+    [InlineData(BlackAndWhite)]
+    public void PcxGrayscaleImageCanRoundTrip(string imagePath)
     {
         // Arrange
         var testFile = TestFile.Create(imagePath);
@@ -35,11 +30,10 @@ public class PbmRoundTripTests
     }
 
     [Theory]
-    [InlineData(RgbPlain)]
-    [InlineData(RgbPlainNormalized)]
-    [InlineData(RgbPlainMagick)]
-    [InlineData(RgbBinary)]
-    public void PbmColorImageCanRoundTrip(string imagePath)
+    [InlineData(Palette16Colors)]
+    [InlineData(Palette16ColorsAlpha)]
+    [InlineData(RgbLandscape)]
+    public void PcxColorImageCanRoundTrip(string imagePath)
     {
         // Arrange
         var testFile = TestFile.Create(imagePath);
