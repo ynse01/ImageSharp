@@ -13,7 +13,7 @@ public sealed class PcxEncoder : ImageEncoder
     /// <summary>
     /// Gets the palette mode.
     /// </summary>
-    public PcxColorType? PaletteMode { get; init; }
+    public PcxColorType? ColorMode { get; init; }
 
     /// <summary>
     /// Gets the number of bitx per pixel channel.

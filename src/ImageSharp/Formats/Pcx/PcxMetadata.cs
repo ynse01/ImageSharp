@@ -21,15 +21,15 @@ public class PcxMetadata : IDeepCloneable
     /// <param name="other">The metadata to create an instance from.</param>
     private PcxMetadata(PcxMetadata other)
     {
-        this.ColorMode = other.ColorMode;
+        this.ColorType = other.ColorType;
         this.BitsPerPixel = other.BitsPerPixel;
-        this.NumberOfComponents = other.NumberOfComponents;
+        this.ComponentCount = other.ComponentCount;
     }
 
     /// <summary>
     /// Gets or sets the encoding of the pixels.
     /// </summary>
-    public PcxColorType ColorMode { get; set; } = PcxColorType.Rgb;
+    public PcxColorType ColorType { get; set; } = PcxColorType.Rgb;
 
     /// <summary>
     /// Gets or sets the number of bits per pixel component.
@@ -39,7 +39,7 @@ public class PcxMetadata : IDeepCloneable
     /// <summary>
     /// Gets or sets the data number of color components.
     /// </summary>
-    public int NumberOfComponents { get; set; }
+    public int ComponentCount { get; set; }
 
     /// <inheritdoc/>
     public IDeepCloneable DeepClone() => new PcxMetadata(this);

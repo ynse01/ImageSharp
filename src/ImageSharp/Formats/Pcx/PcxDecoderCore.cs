@@ -23,7 +23,7 @@ internal sealed class PcxDecoderCore : IImageDecoderInternals
     /// <summary>
     /// The colortype to use
     /// </summary>
-    private PcxColorType colorMode;
+    private PcxColorType colorType;
 
     /// <summary>
     /// The size of the pixel array
@@ -38,7 +38,7 @@ internal sealed class PcxDecoderCore : IImageDecoderInternals
     /// <summary>
     /// The number of color components per pixel.
     /// </summary>
-    private int numberOfComponents;
+    private int ComponentCount;
 
     /// <summary>
     /// The number of bits per pixel channel.
@@ -119,9 +119,9 @@ internal sealed class PcxDecoderCore : IImageDecoderInternals
         int maxX = BinaryPrimitives.ReadUInt16LittleEndian(buffer[8..]);
         int maxY = BinaryPrimitives.ReadUInt16LittleEndian(buffer[10..]);
         this.pixelSize = new Size(maxX - minX + 1, maxY - minY + 1);
-        this.numberOfComponents = buffer[65];
+        this.ComponentCount = buffer[65];
         this.stride = BinaryPrimitives.ReadInt16LittleEndian(buffer[66..]);
-        this.colorMode = this.DetermineColorMode();
+        this.colorType = this.DetermineColorType();
 
         this.metadata = new ImageMetadata
         {
@@ -131,15 +131,15 @@ internal sealed class PcxDecoderCore : IImageDecoderInternals
         };
 
         PcxMetadata meta = this.metadata.GetPcxMetadata();
-        meta.ColorMode = this.colorMode;
-        meta.NumberOfComponents = this.numberOfComponents;
+        meta.ColorType = this.colorType;
+        meta.ComponentCount = this.ComponentCount;
         meta.BitsPerPixel = this.bitsPerPixel;
     }
 
     private void ProcessPixels<TPixel>(BufferedReadStream stream, Buffer2D<TPixel> pixels)
         where TPixel : unmanaged, IPixel<TPixel>
     {
-        int rowWidthInBytes = this.stride * this.numberOfComponents;
+        int rowWidthInBytes = this.stride * this.ComponentCount;
         Span<byte> buffer = stackalloc byte[rowWidthInBytes];
         using IMemoryOwner<Rgba32> rowOwner = this.configuration.MemoryAllocator.Allocate<Rgba32>(this.pixelSize.Width);
         Span<Rgba32> rgbaRow = rowOwner.GetSpan();
@@ -153,26 +153,26 @@ internal sealed class PcxDecoderCore : IImageDecoderInternals
         }
     }
 
-    private PcxColorType DetermineColorMode()
+    private PcxColorType DetermineColorType()
     {
         PcxColorType mode = PcxColorType.Palette;
         if (this.bitsPerPixel == 8)
         {
-            if (this.numberOfComponents == 3)
+            if (this.ComponentCount == 3)
             {
                 mode = PcxColorType.Rgb;
             }
-            else if (this.numberOfComponents == 4)
+            else if (this.ComponentCount == 4)
             {
                 mode = PcxColorType.Rgba;
             }
-            else if (this.numberOfComponents == 1)
+            else if (this.ComponentCount == 1)
             {
                 mode = PcxColorType.Grayscale;
             }
         }
 
-        if (this.bitsPerPixel == 1 && this.numberOfComponents == 1)
+        if (this.bitsPerPixel == 1 && this.ComponentCount == 1)
         {
             mode = PcxColorType.BlackAndWhite;
         }
@@ -206,7 +206,7 @@ internal sealed class PcxDecoderCore : IImageDecoderInternals
     private void RowToPixelInterleavedRgb(Span<byte> buffer, Span<Rgba32> span)
     {
         int stride2 = this.stride * 2;
-        switch (this.colorMode)
+        switch (this.colorType)
         {
             case PcxColorType.Grayscale:
                 for (int x = 0; x < span.Length; x++)

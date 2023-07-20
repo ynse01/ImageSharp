@@ -1,7 +1,9 @@
 // Copyright (c) Six Labors.
 // Licensed under the Six Labors Split License.
 
+using System.Buffers;
 using System.Buffers.Binary;
+using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace SixLabors.ImageSharp.Formats.Pcx;
@@ -24,7 +26,7 @@ internal sealed class PcxEncoderCore : IImageEncoderInternals
     /// <summary>
     /// Gets the color type used in this image.
     /// </summary>
-    private PcxColorType colorMode;
+    private PcxColorType colorType;
 
     /// <summary>
     /// Gets the number of bits per pixel channel.
@@ -90,5 +92,65 @@ internal sealed class PcxEncoderCore : IImageEncoderInternals
     private void WritePixels<TPixel>(Stream stream, ImageFrame<TPixel> image)
         where TPixel : unmanaged, IPixel<TPixel>
     {
+        var pixelInfo = PixelTypeInfo.Create<TPixel>();
+        var hasAlphaComponent = pixelInfo.AlphaRepresentation.HasValue && pixelInfo.AlphaRepresentation.Value == PixelAlphaRepresentation.Unassociated;
+    }
+
+    private void WriteRgbaPixels(Stream stream, ImageFrame<Rgba32> image)
+    {
+        IMemoryOwner<byte> bandOwner = this.configuration.MemoryAllocator.Allocate<byte>(image.Width * 4);
+        int rIndex = 0;
+        int gIndex = image.Width;
+        int bIndex = gIndex * 2;
+        int aIndex = gIndex * 3;
+        for (int y = 0; y < image.Height; y++)
+        {
+            image.ProcessPixelRows(accessor =>
+            {
+                Span<byte> bandRow = bandOwner.GetSpan();
+                Span<Rgba32> imageRow = accessor.GetRowSpan(y);
+                for (int x = 0; x < image.Width; x++)
+                {
+                    Rgba32 currentPixel = imageRow[x];
+                    bandRow[rIndex + x] = currentPixel.R;
+                    bandRow[gIndex + x] = currentPixel.G;
+                    bandRow[bIndex + x] = currentPixel.B;
+                    bandRow[aIndex + x] = currentPixel.A;
+                }
+            });
+
+            EncodeAndWriteRowToStream(stream, bandOwner.GetSpan());
+        }
+    }
+
+    private void WriteRgbPixels(Stream stream, ImageFrame<Rgb24> image)
+    {
+        IMemoryOwner<byte> bandOwner = this.configuration.MemoryAllocator.Allocate<byte>(image.Width * 3);
+        int rIndex = 0;
+        int gIndex = image.Width;
+        int bIndex = gIndex * 2;
+        for (int y = 0; y < image.Height; y++)
+        {
+            image.ProcessPixelRows(accessor =>
+            {
+                Span<byte> bandRow = bandOwner.GetSpan();
+                Span<Rgb24> imageRow = accessor.GetRowSpan(y);
+                for (int x = 0; x < image.Width; x++)
+                {
+                    Rgb24 currentPixel = imageRow[x];
+                    bandRow[rIndex + x] = currentPixel.R;
+                    bandRow[gIndex + x] = currentPixel.G;
+                    bandRow[bIndex + x] = currentPixel.B;
+                }
+            });
+
+            EncodeAndWriteRowToStream(stream, bandOwner.GetSpan());
+        }
+    }
+
+    private static void EncodeAndWriteRowToStream(Stream stream, Span<byte> row)
+    {
+        // TODO: implement RLE encoding
+        stream.Write(row);
     }
 }
