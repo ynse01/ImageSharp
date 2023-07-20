@@ -1042,6 +1042,15 @@ public static class TestImages
         public const string Issue2477 = "Pbm/issue2477.pbm";
     }
 
+    public static class Pcx
+    {
+        public const string Palette16Colors = "Pcx/WINSCR.PCX";
+        public const string Palette16ColorsAlpha = "Pcx/shuttle1.PCX";
+        public const string YellowCat = "Pcx/CAT.PCX";
+        public const string BlackAndWhite = "Pcx/bunny.pcx";
+        public const string RgbLandscape = "Pcx/pcx-download-file-sample.pcx";
+    }
+
     public static class Qoi
     {
         public const string Dice = "Qoi/dice.qoi";
